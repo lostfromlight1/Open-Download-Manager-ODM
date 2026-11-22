@@ -263,12 +263,17 @@ func (s *DownloadService) GetSettings() (SettingsDTO, error) {
 		return SettingsDTO{}, err
 	}
 	dto := settingsToDTO(cfg)
+	decorateSettings(&dto)
 	dto.BrowserHostRegistered = browserhost.IsInstalled()
 	if cfg.MediaEnabled && media.NeedsEnsure(s.dataDir, cfg.MediaYtDlpPath, cfg.MediaFFmpegPath) {
 		s.startMediaToolsEnsure()
 	}
 	s.fillMediaToolsStatus(&dto, cfg)
 	return dto, nil
+}
+
+func decorateSettings(dto *SettingsDTO) {
+	dto.ExtensionChromeDir, dto.ExtensionFirefoxDir = browserhost.ExtensionFolders()
 }
 
 func (s *DownloadService) fillMediaToolsStatus(dto *SettingsDTO, cfg storage.Settings) {
@@ -453,6 +458,9 @@ func (s *DownloadService) UpdateSettings(dto SettingsDTO) (SettingsDTO, error) {
 	if cfg.Theme == "" {
 		cfg.Theme = existing.Theme
 	}
+	if cfg.BrowserIntegrationEnabled && strings.TrimSpace(cfg.ChromeExtensionID) == "" {
+		cfg.ChromeExtensionID = browserhost.ChromeExtensionID
+	}
 	if cfg.BrowserIntegrationEnabled && strings.TrimSpace(cfg.DownloadDirectory) == "" {
 		return SettingsDTO{}, fmt.Errorf("set a default download folder before enabling browser integration")
 	}
@@ -464,6 +472,7 @@ func (s *DownloadService) UpdateSettings(dto SettingsDTO) (SettingsDTO, error) {
 	}
 
 	out := settingsToDTO(cfg)
+	decorateSettings(&out)
 	if cfg.MediaEnabled {
 		// ffmpeg zip is large; install asynchronously and resume .part files.
 		s.startMediaToolsEnsure()

@@ -28,13 +28,13 @@ Unicode true
 ## !define PRODUCT_EXECUTABLE  "Application.exe"      # Default "${INFO_PROJECTNAME}.exe"
 ## !define UNINST_KEY_NAME     "UninstKeyInRegistry"  # Default "${INFO_COMPANYNAME}${INFO_PRODUCTNAME}"
 ####
-## v1.0 prep: per-user install (no UAC). Override via makensis -DWAILS_INSTALL_SCOPE=machine
-## if a machine-wide install is required.
+## Machine-wide install so every account gets the app, host, and extension files.
+## Override with makensis -DWAILS_INSTALL_SCOPE=user -DREQUEST_EXECUTION_LEVEL=user.
 !ifndef WAILS_INSTALL_SCOPE
-    !define WAILS_INSTALL_SCOPE "user"
+    !define WAILS_INSTALL_SCOPE "machine"
 !endif
 !ifndef REQUEST_EXECUTION_LEVEL
-    !define REQUEST_EXECUTION_LEVEL "user"
+    !define REQUEST_EXECUTION_LEVEL "admin"
 !endif
 ####
 ## Include the wails tools
@@ -105,6 +105,27 @@ Section
     
     !insertmacro wails.files
 
+    !ifdef ODM_NMHOST
+        File "/oname=odm-nmhost.exe" "${ODM_NMHOST}"
+    !endif
+    !ifdef ODM_EXT_CHROME
+        SetOutPath "$INSTDIR\browser-extension"
+        File /r "${ODM_EXT_CHROME}\*.*"
+    !endif
+    !ifdef ODM_EXT_FIREFOX
+        SetOutPath "$INSTDIR\browser-extension-firefox"
+        File /r "${ODM_EXT_FIREFOX}\*.*"
+    !endif
+    SetOutPath $INSTDIR
+
+    IfFileExists "$INSTDIR\odm-nmhost.exe" host_install_do host_install_skip
+    host_install_do:
+        ExecWait '"$INSTDIR\odm-nmhost.exe" --install-user'
+        !if "${WAILS_INSTALL_SCOPE}" != "user"
+            ExecWait '"$INSTDIR\odm-nmhost.exe" --install-system'
+        !endif
+    host_install_skip:
+
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
     CreateShortCut "$DESKTOP\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
 
@@ -118,6 +139,14 @@ Section "uninstall"
     !insertmacro wails.setShellContext
 
     RMDir /r "$AppData\${PRODUCT_EXECUTABLE}" # Remove the WebView2 DataPath
+
+    IfFileExists "$INSTDIR\odm-nmhost.exe" host_uninstall_do host_uninstall_skip
+    host_uninstall_do:
+        ExecWait '"$INSTDIR\odm-nmhost.exe" --uninstall-user'
+        !if "${WAILS_INSTALL_SCOPE}" != "user"
+            ExecWait '"$INSTDIR\odm-nmhost.exe" --uninstall-system'
+        !endif
+    host_uninstall_skip:
 
     RMDir /r $INSTDIR
 

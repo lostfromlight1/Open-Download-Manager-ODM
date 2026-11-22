@@ -77,8 +77,8 @@ Before merging:
 
 ### Windows (required for local release verification)
 
-1. `CI=true wails3 build` then `wails3 task windows:package` (requires NSIS/`makensis` on `PATH`; default **per-user** `INSTALL_SCOPE=user`, no UAC).
-2. Run `apps/desktop/bin/odm-amd64-installer.exe`, install without admin, leave **Launch Open Download Manager** checked.
+1. `CI=true wails3 build` then `wails3 task windows:package` (requires NSIS/`makensis` on `PATH`; default **all users** `INSTALL_SCOPE=machine`).
+2. Run `apps/desktop/bin/odm-amd64-installer.exe`. Windows asks for administrator approval because the install is for every account. Leave **Launch Open Download Manager** checked.
 3. First-run wizard: set download folder → optionally skip browser/YouTube → land on dashboard.
 4. Add a small HTTP download → pause → resume → complete.
 5. Open Settings: theme + destination Browse; toggle notify-on-complete if desired.
@@ -87,8 +87,8 @@ Before merging:
 
 ### End-user install smoke (1.0.0)
 
-1. Install from a GitHub Release `odm-amd64-installer.exe` (or local NSIS build) without elevating.
-2. Confirm install path is under `%LOCALAPPDATA%\Programs\…`.
+1. Install from a GitHub Release `odm-windows-amd64-installer.exe` (or the local NSIS build `odm-amd64-installer.exe`). Approve the administrator prompt.
+2. Confirm the install path is under `C:\Program Files\Open Download Manager contributors\Open Download Manager`. Linux uses `odm-linux-amd64.rpm` or `odm-linux-amd64.deb`. macOS uses `odm-macos-arm64.dmg` (Apple Silicon).
 3. Complete first-run folder step; confirm Add Download works afterward.
 4. Optional: enable browser + load unpacked extension; optional YouTube probe of one short URL.
 5. Compare installer SHA256 to `SHA256SUMS.txt` when installing from a Release.
@@ -102,10 +102,10 @@ Before merging:
 
 ## Phase 6 browser smoke (manual)
 
-1. Build host: `go build -o apps/desktop/bin/odm-nmhost.exe ./cmd/odm-nmhost` (or `odm-nmhost` on Unix) and ensure it sits next to the desktop binary or on `PATH`.
-2. In ODM Settings: set download folder, enable browser integration, paste Chrome extension ID (from `chrome://extensions` with Developer mode), Save.
+1. Release packages already install `odm-nmhost` and register it for every account. For a dev build, compile it beside the app: `go build -o apps/desktop/bin/odm-nmhost ./cmd/odm-nmhost` (`odm-nmhost.exe` on Windows).
+2. A new install sets the download folder and enables browser integration. The packaged extension id is already allowed. Paste a Chrome extension ID only when testing a different unpacked copy, then Save.
 3. Confirm the green status text reports **browser host installed** (or a clear error if `odm-nmhost` is missing).
-4. Load unpacked extension from `apps/browser-extension` (Firefox: use `manifest.firefox.json` as `manifest.json`).
+4. Load the unpacked extension. Packaged copies live in `browser-extension` and `browser-extension-firefox` next to the app (Linux: `/usr/share/odm/`). Dev builds use `apps/browser-extension` (Firefox: `manifest.firefox.json`).
 5. Extension popup → Refresh status → expect “Connected” when enabled.
 6. Right-click a link → Download with ODM → task appears in the desktop list within ~1s.
 7. Disable integration in Settings → Save → confirm **browser host uninstalled** message; enqueue should fail in the extension.

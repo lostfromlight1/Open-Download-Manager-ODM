@@ -28,7 +28,7 @@ The application downloads untrusted remote content and accepts URLs and commands
 - Validate message schema, version, size, URL, and allowed action (`ping` / `enqueue` only; max 256 KiB).
 - Do not expose arbitrary shell, process, or filesystem commands.
 - Authenticate/validate the calling browser where the platform mechanism permits (Chrome `allowed_origins`, Firefox `allowed_extensions`).
-- Require explicit user configuration (`browser.integration_enabled`, default off) and provide a disable switch that unregisters the host.
+- A new install turns `browser.integration_enabled` on and registers the native host for the pinned extension id. The host still rejects enqueue until that extension connects, and Settings can turn integration off, which unregisters the per-user host. Existing installs are left unchanged.
 - Keep permissions minimal; optional click-capture requests host permissions only when enabled.
 - Optional download interception requests the browser `downloads` permission only when the user enables **Send browser downloads to ODM** in the extension popup (default off).
 - Optional cookie handoff requests the browser `cookies` permission only when **Forward session cookies for intercepted downloads** is enabled (default off). Cookie/Referer strings are validated (size + no CR/LF), applied as ephemeral in-memory headers for that task, never written to SQLite or logged, and dropped on cross-host redirects.

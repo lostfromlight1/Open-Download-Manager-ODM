@@ -163,17 +163,19 @@ jobs:
       - name: Package Windows NSIS installer
         if: runner.os == 'Windows'
         working-directory: apps/desktop
-        run: wails3 task windows:create:nsis:installer INSTALL_SCOPE=user
+        run: wails3 task windows:create:nsis:installer INSTALL_SCOPE=machine
 
       - name: Package macOS app bundle
         if: runner.os == 'macOS'
         working-directory: apps/desktop
         run: wails3 task darwin:package
 
-      - name: Package Linux deb
+      - name: Package Linux deb and rpm
         if: runner.os == 'Linux'
         working-directory: apps/desktop
-        run: wails3 task linux:create:deb
+        run: |
+          wails3 task linux:create:deb
+          wails3 task linux:create:rpm
 
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4
@@ -182,6 +184,7 @@ jobs:
           path: |
             apps/desktop/bin/odm*
             apps/desktop/bin/*.deb
+            apps/desktop/bin/*.rpm
             apps/desktop/bin/*.app
           if-no-files-found: error
           retention-days: 7

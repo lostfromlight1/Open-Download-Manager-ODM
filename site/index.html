@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Download Manager</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      <p class="mark">Version 1.0.0</p>
+      <h1>Open Download Manager</h1>
+      <p class="lead">
+        An open-source download manager for Windows, macOS, and Linux. The
+        installer sets up the app and the browser host. You load the browser
+        extension yourself.
+      </p>
+      <ul class="downloads">
+        <li>
+          <a
+            href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-windows-amd64-installer.exe"
+            >Windows installer</a
+          >
+          <span>64-bit, every account on the PC</span>
+        </li>
+        <li>
+          <a
+            href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-linux-amd64.rpm"
+            >Linux rpm</a
+          >
+          <span>Fedora and other rpm systems, 64-bit</span>
+        </li>
+        <li>
+          <a
+            href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-linux-amd64.deb"
+            >Linux deb</a
+          >
+          <span>Debian and Ubuntu, 64-bit</span>
+        </li>
+        <li>
+          <a
+            href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-macos-arm64.dmg"
+            >macOS disk image</a
+          >
+          <span>macOS 12 or newer, Apple Silicon</span>
+        </li>
+      </ul>
+      <p>
+        <a
+          href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest"
+          >All release files and checksums</a
+        >
+      </p>
+      <h2>After you install</h2>
+      <ol>
+        <li>
+          Windows may show SmartScreen. Choose More info, then Run anyway, only
+          for the installer from this site. macOS may block the first open.
+          Right-click the app and choose Open.
+        </li>
+        <li>
+          ODM uses your Downloads folder and turns browser integration on.
+        </li>
+        <li>
+          Chrome or Edge: open <code>chrome://extensions</code>, turn on
+          Developer mode, and load the <code>browser-extension</code> folder
+          from the install. Linux uses
+          <code>/usr/share/odm/browser-extension</code>. On macOS it is inside
+          <code>odm.app</code> under Contents/MacOS.
+        </li>
+        <li>
+          Firefox: load <code>browser-extension-firefox/manifest.json</code> as
+          a temporary add-on. Load it again after Firefox quits.
+        </li>
+      </ol>
+      <p>
+        The same steps are in the app under Help, and in
+        <a
+          href="https://github.com/lostfromlight1/Open-Download-Manager-ODM/blob/main/docs/GETTING_STARTED.md"
+          >Getting started</a
+        >.
+      </p>
+      <h2>Not in this release</h2>
+      <ul>
+        <li>Intel Macs, and an AppImage.</li>
+        <li>
+          Flatpak browsers. They cannot start <code>/usr/bin/odm-nmhost</code>.
+        </li>
+        <li>
+          A managed ffmpeg build on macOS. YouTube there needs
+          <code>brew install ffmpeg</code>.
+        </li>
+      </ul>
+    </main>
+  </body>
+</html>

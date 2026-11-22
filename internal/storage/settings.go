@@ -30,6 +30,7 @@ const (
 	SettingMediaEnabled       = "media.enabled"               // YouTube via yt-dlp
 	SettingMediaYtDlpPath     = "media.ytdlp_path"            // optional override
 	SettingMediaFFmpegPath    = "media.ffmpeg_path"           // optional override
+	SettingSetupNotice        = "setup.extension_notice"      // pending | done | empty (done)
 	// SettingMediaPendingPickURL is a one-shot IPC flag from odm-nmhost → desktop
 	// (not part of Settings DTO / SaveSettings).
 	SettingMediaPendingPickURL = "media.pending_pick_url"
@@ -54,7 +55,15 @@ type Settings struct {
 	MediaEnabled              bool   // YouTube / media downloads via yt-dlp
 	MediaYtDlpPath            string // optional override; empty = managed/PATH
 	MediaFFmpegPath           string // optional override; empty = managed/PATH
+	// SetupNotice is "pending" until the user dismisses the extension step.
+	// Empty or "done" means an existing install should not see that step again.
+	SetupNotice string
 }
+
+const (
+	SetupNoticePending = "pending"
+	SetupNoticeDone    = "done"
+)
 
 // DefaultSettings returns Phase 2/3 defaults.
 func DefaultSettings() Settings {
@@ -142,6 +151,8 @@ func (s *Store) GetSettings(ctx context.Context) (Settings, error) {
 			out.MediaYtDlpPath = strings.TrimSpace(v)
 		case SettingMediaFFmpegPath:
 			out.MediaFFmpegPath = strings.TrimSpace(v)
+		case SettingSetupNotice:
+			out.SetupNotice = strings.TrimSpace(v)
 		}
 	}
 	return out, rows.Err()
@@ -190,6 +201,7 @@ func (s *Store) SaveSettings(ctx context.Context, cfg Settings) error {
 		SettingMediaEnabled:       strconv.FormatBool(cfg.MediaEnabled),
 		SettingMediaYtDlpPath:     strings.TrimSpace(cfg.MediaYtDlpPath),
 		SettingMediaFFmpegPath:    strings.TrimSpace(cfg.MediaFFmpegPath),
+		SettingSetupNotice:        strings.TrimSpace(cfg.SetupNotice),
 	}
 	for k, v := range pairs {
 		if _, err := tx.ExecContext(ctx, `

@@ -19,6 +19,35 @@ func main() {
 	// Native messaging hosts must not write noise to stdout (reserved for NM frames).
 	log.SetOutput(os.Stderr)
 
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "--install-system":
+			if _, err := browserhost.InstallSystem(""); err != nil {
+				log.Printf("install system host: %v", err)
+				os.Exit(1)
+			}
+			return
+		case "--uninstall-system":
+			if err := browserhost.UninstallSystem(); err != nil {
+				log.Printf("uninstall system host: %v", err)
+				os.Exit(1)
+			}
+			return
+		case "--install-user":
+			if _, err := browserhost.Install(browserhost.InstallOptions{}); err != nil {
+				log.Printf("install user host: %v", err)
+				os.Exit(1)
+			}
+			return
+		case "--uninstall-user":
+			if _, err := browserhost.Uninstall(); err != nil {
+				log.Printf("uninstall user host: %v", err)
+				os.Exit(1)
+			}
+			return
+		}
+	}
+
 	dataDir, err := appdir.Resolve("")
 	if err != nil {
 		log.Printf("data dir: %v", err)

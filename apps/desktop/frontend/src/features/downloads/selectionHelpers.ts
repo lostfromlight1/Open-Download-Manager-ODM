@@ -17,9 +17,7 @@ export function canCancelTask(d: DownloadDTO): boolean {
   );
 }
 
-export function partitionSelection(
-  selected: DownloadDTO[],
-): {
+export function partitionSelection(selected: DownloadDTO[]): {
   pauseable: DownloadDTO[];
   resumeable: DownloadDTO[];
   cancelable: DownloadDTO[];

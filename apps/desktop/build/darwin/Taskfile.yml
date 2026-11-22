@@ -46,6 +46,7 @@ tasks:
     cmds:
       - wails3 tool prepare-macos-output --dir "{{.BIN_DIR}}"
       - '{{if eq .OBFUSCATED "true"}}garble {{.GARBLE_ARGS}} build{{else}}go build{{end}} {{.BUILD_FLAGS}} -o "{{.OUTPUT}}"'
+      - CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "{{.BIN_DIR}}/odm-nmhost" ../../cmd/odm-nmhost
     vars:
       BUILD_FLAGS: '{{if eq .DEV "true"}}{{if or .EXTRA_TAGS (eq .OBFUSCATED "true")}}-tags {{if eq .OBFUSCATED "true"}}wails_obfuscated{{if .EXTRA_TAGS}},{{end}}{{end}}{{.EXTRA_TAGS}} {{end}}-buildvcs=false -gcflags=all="-l"{{else}}-tags production{{if eq .OBFUSCATED "true"}},wails_obfuscated{{end}}{{if .EXTRA_TAGS}},{{.EXTRA_TAGS}}{{end}} -trimpath -buildvcs=false -ldflags="-w -s"{{end}}'
       DEFAULT_OUTPUT: '{{.BIN_DIR}}/{{.APP_NAME}}'
@@ -172,7 +173,11 @@ tasks:
         if [ -f build/darwin/Assets.car ]; then
           cp build/darwin/Assets.car "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/Resources"
         fi
+      - sh ./build/stage-extension.sh
       - cp "{{.BIN_DIR}}/{{.APP_NAME}}" "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/MacOS"
+      - cp "{{.BIN_DIR}}/odm-nmhost" "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/MacOS/odm-nmhost"
+      - cp -a build/staged/browser-extension "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/MacOS/browser-extension"
+      - cp -a build/staged/browser-extension-firefox "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents/MacOS/browser-extension-firefox"
       - cp build/darwin/Info.plist "{{.BIN_DIR}}/{{.APP_NAME}}.app/Contents"
       - task: '{{if eq OS "darwin"}}codesign:adhoc{{else}}codesign:skip{{end}}'
 

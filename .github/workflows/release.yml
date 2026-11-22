@@ -1,0 +1,270 @@
+name: Release
+
+# Cut a release by moving the v1.0.0 tag onto the commit that should ship.
+# workflow_dispatch rebuilds an existing tag without moving it.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
+
+      - name: Install NSIS
+        run: |
+          choco install nsis -y
+          echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Package machine-wide installer
+        working-directory: apps/desktop
+        run: wails3 task windows:create:nsis:installer INSTALL_SCOPE=machine
+
+      - name: Stage installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-assets | Out-Null
+          $installer = Get-ChildItem "apps/desktop/bin/*-amd64-installer.exe" | Select-Object -First 1
+          if (-not $installer) { throw "NSIS installer not found under apps/desktop/bin" }
+          Copy-Item $installer.FullName "release-assets/odm-windows-amd64-installer.exe"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: release-assets/odm-windows-amd64-installer.exe
+          if-no-files-found: error
+
+  linux:
+    name: Linux packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libgtk-4-dev libwebkitgtk-6.0-dev libwayland-dev rpm
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Package deb and rpm
+        working-directory: apps/desktop
+        run: |
+          wails3 task linux:create:deb
+          wails3 task linux:create:rpm
+
+      - name: Stage packages
+        run: |
+          mkdir -p release-assets
+          deb=$(find apps/desktop/bin -maxdepth 1 -name '*.deb' | head -n 1)
+          rpm=$(find apps/desktop/bin -maxdepth 1 -name '*.rpm' | head -n 1)
+          test -n "$deb"
+          test -n "$rpm"
+          cp "$deb" release-assets/odm-linux-amd64.deb
+          cp "$rpm" release-assets/odm-linux-amd64.rpm
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            release-assets/odm-linux-amd64.deb
+            release-assets/odm-linux-amd64.rpm
+          if-no-files-found: error
+
+  macos:
+    name: macOS app
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      CI: "true"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Wails CLI
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.1.0
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Package disk image or zip
+        working-directory: apps/desktop
+        run: |
+          set +e
+          wails3 task darwin:package:dmg
+          dmg_status=$?
+          set -e
+          mkdir -p "$GITHUB_WORKSPACE/release-assets"
+          if [ "$dmg_status" -eq 0 ]; then
+            dmg=$(find bin -maxdepth 1 -name '*.dmg' | head -n 1)
+            test -n "$dmg"
+            cp "$dmg" "$GITHUB_WORKSPACE/release-assets/odm-macos-arm64.dmg"
+          else
+            echo "Disk image packaging failed; shipping a zip of the app bundle"
+            wails3 task darwin:package
+            app=$(find bin -maxdepth 1 -name '*.app' -type d | head -n 1)
+            test -n "$app"
+            ditto -c -k --keepParent "$app" "$GITHUB_WORKSPACE/release-assets/odm-macos-arm64.zip"
+          fi
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: |
+            release-assets/odm-macos-arm64.dmg
+            release-assets/odm-macos-arm64.zip
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [windows, linux, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded
+
+      - name: Collect assets and checksums
+        run: |
+          mkdir -p release-assets
+          cp downloaded/windows-installer/odm-windows-amd64-installer.exe release-assets/
+          cp downloaded/linux-packages/odm-linux-amd64.deb release-assets/
+          cp downloaded/linux-packages/odm-linux-amd64.rpm release-assets/
+          if [ -f downloaded/macos-app/odm-macos-arm64.dmg ]; then
+            cp downloaded/macos-app/odm-macos-arm64.dmg release-assets/
+          elif [ -f downloaded/macos-app/odm-macos-arm64.zip ]; then
+            cp downloaded/macos-app/odm-macos-arm64.zip release-assets/
+          else
+            echo "macOS asset missing"
+            exit 1
+          fi
+          cd release-assets
+          files=(odm-windows-amd64-installer.exe odm-linux-amd64.deb odm-linux-amd64.rpm)
+          if [ -f odm-macos-arm64.dmg ]; then files+=(odm-macos-arm64.dmg); fi
+          if [ -f odm-macos-arm64.zip ]; then files+=(odm-macos-arm64.zip); fi
+          sha256sum "${files[@]}" > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Open Download Manager ${{ steps.meta.outputs.tag }}
+          generate_release_notes: false
+          files: release-assets/*
+          body: |
+            ## Open Download Manager 1.0.0
+
+            Installers are unsigned. Each package includes the app, `odm-nmhost`, and both browser extension folders. Loading the extension in the browser is the step you do yourself.
+
+            | System | File |
+            |---|---|
+            | Windows 10/11, 64-bit | `odm-windows-amd64-installer.exe` |
+            | Fedora and other rpm systems, 64-bit | `odm-linux-amd64.rpm` |
+            | Debian and Ubuntu, 64-bit | `odm-linux-amd64.deb` |
+            | macOS 12 or newer, Apple Silicon | `odm-macos-arm64.dmg`, or `odm-macos-arm64.zip` when the disk image was not produced |
+
+            Windows asks for administrator approval and installs for every account. SmartScreen may warn because the installer is unsigned: More info, then Run anyway, only for this file. macOS may block the first open: right-click `odm.app` and choose Open.
+
+            Verify downloads with `SHA256SUMS.txt`.
+
+            Install steps: [Getting started](https://github.com/lostfromlight1/Open-Download-Manager-ODM/blob/main/docs/GETTING_STARTED.md).
+
+            This release does not include Intel Mac builds or an AppImage. Flatpak browsers cannot start `/usr/bin/odm-nmhost`. A Firefox add-on loaded from the package is temporary. YouTube on macOS needs `brew install ffmpeg`.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

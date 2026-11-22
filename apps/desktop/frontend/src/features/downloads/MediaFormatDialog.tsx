@@ -9,15 +9,8 @@ type Props = {
   onConfirm: (formatId: string) => Promise<void>;
 };
 
-export function MediaFormatDialog({
-  probe,
-  busy,
-  onCancel,
-  onConfirm,
-}: Props) {
-  const [formatId, setFormatId] = useState(
-    probe.formats[0]?.id ?? "best",
-  );
+export function MediaFormatDialog({ probe, busy, onCancel, onConfirm }: Props) {
+  const [formatId, setFormatId] = useState(probe.formats[0]?.id ?? "best");
   const [error, setError] = useState<string | null>(null);
 
   async function submit() {

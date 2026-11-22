@@ -31,19 +31,19 @@ type Props = {
   defaultDir: string;
   notifyOnComplete: boolean;
   onOpenSettings: () => void;
+  onOpenHelp: () => void;
 };
 
-type FileDialogState =
-  | {
-      mode: "cancel" | "remove";
-      downloads: DownloadDTO[];
-    }
-  | null;
+type FileDialogState = {
+  mode: "cancel" | "remove";
+  downloads: DownloadDTO[];
+} | null;
 
 export function DownloadsPage({
   defaultDir,
   notifyOnComplete,
   onOpenSettings,
+  onOpenHelp,
 }: Props) {
   const [state, dispatch] = useReducer(downloadsReducer, initialDownloadsState);
   const [filter, setFilter] = useState<FilterTab>("all");
@@ -294,6 +294,13 @@ export function DownloadsPage({
           </h1>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"
+            onClick={onOpenHelp}
+          >
+            Help
+          </button>
           <button
             type="button"
             className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm"

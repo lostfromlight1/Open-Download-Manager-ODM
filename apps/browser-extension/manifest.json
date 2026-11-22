@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "ODM — Open Download Manager",
   "version": "1.0.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwLow5mAOjpnAoNf8NIWUxoZ5XBzQWQbt8h52n+uRkViTVv/huRrYOagpywkMNCU18JjRj/SgI8Kh8rsJzYW2ntgnnIfQB/ZGZN+9iSN1CVVhlckwCNYMlneenDuThuqMCYKX9jwoUxKI1kVgpQgxw58RbHSY4Kr3msNzoB70DZ6k6BPeXSwJ+pZIpV6XanCFNirsmeXeS9PH9bQM4AHf7M1Tj4BR6GM8AKEDcIcSOYsIJGOXlSo3mXRhHp1KywG/3QUa5jKamjuXjXCFLTbmRs3Ab9+bG9/hIyiFD04J8zCjtWMKSoib/JWzXh1Dzrk6k7iyZRBafPCYlrqhR6aaLQIDAQAB",
   "description": "Send download links to Open Download Manager (opt-in native messaging).",
   "permissions": ["contextMenus", "nativeMessaging", "storage", "scripting"],
   "optional_permissions": ["downloads", "cookies"],

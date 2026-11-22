@@ -32,10 +32,10 @@ type DownloadOptions struct {
 }
 
 var (
-	reProgressPct    = regexp.MustCompile(`\[download\]\s+([0-9.]+)%`)
+	reProgressPct = regexp.MustCompile(`\[download\]\s+([0-9.]+)%`)
 	// yt-dlp prints both "of 10.00MiB" and "of ~  3.00GiB" (tilde + spaces).
-	reProgressOf   = regexp.MustCompile(`of\s+~?\s*([0-9.]+)\s*([KMG])i?B`)
-	reProgressRate = regexp.MustCompile(`at\s+([0-9.]+)\s*([KMG])i?B/s`)
+	reProgressOf     = regexp.MustCompile(`of\s+~?\s*([0-9.]+)\s*([KMG])i?B`)
+	reProgressRate   = regexp.MustCompile(`at\s+([0-9.]+)\s*([KMG])i?B/s`)
 	reFragmentInName = regexp.MustCompile(`(?i)\.f\d+([.-]|$)`)
 	reYTDLPVideoID   = regexp.MustCompile(`\[([A-Za-z0-9_-]{6,})\]`)
 )

@@ -37,7 +37,8 @@ func TestPromoteThenRemoveWorkDirLeavesUserFile(t *testing.T) {
 }
 
 func TestForceRefreshManagedYtDlpTriggersNeedsEnsure(t *testing.T) {
-	t.Parallel()
+	// A distro yt-dlp on PATH would hide the missing managed binary.
+	t.Setenv("PATH", filepath.Join(t.TempDir(), "empty-path"))
 	data := t.TempDir()
 	toolsDir := ToolsDir(data)
 	if err := os.MkdirAll(toolsDir, 0o755); err != nil {

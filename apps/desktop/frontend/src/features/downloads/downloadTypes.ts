@@ -70,6 +70,9 @@ export interface SettingsDTO {
   mediaFfmpegPath: string;
   mediaToolsReady: boolean;
   mediaToolsMessage: string;
+  setupNotice: string;
+  extensionChromeDir: string;
+  extensionFirefoxDir: string;
 }
 
 export interface MediaFormatDTO {

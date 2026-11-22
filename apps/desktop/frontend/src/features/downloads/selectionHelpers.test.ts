@@ -2,10 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { DownloadDTO } from "./downloadTypes";
 import { partitionSelection } from "./selectionHelpers";
 
-function row(
-  id: string,
-  status: DownloadDTO["status"],
-): DownloadDTO {
+function row(id: string, status: DownloadDTO["status"]): DownloadDTO {
   return {
     id,
     url: "https://example.com/f",

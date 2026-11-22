@@ -10,6 +10,16 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
+func windowsUserHostKeys() []string {
+	return []string{
+		`Software\Google\Chrome\NativeMessagingHosts\` + HostName,
+		`Software\Chromium\NativeMessagingHosts\` + HostName,
+		`Software\Microsoft\Edge\NativeMessagingHosts\` + HostName,
+		`Software\BraveSoftware\Brave-Browser\NativeMessagingHosts\` + HostName,
+		`Software\Mozilla\NativeMessagingHosts\` + HostName,
+	}
+}
+
 // Install registers the native messaging host for Chrome and Firefox (current user).
 func Install(opts InstallOptions) (InstallResult, error) {
 	hostPath := opts.HostBinaryPath
@@ -20,7 +30,7 @@ func Install(opts InstallOptions) (InstallResult, error) {
 			return InstallResult{}, err
 		}
 	}
-	m, err := BuildManifest(hostPath, opts.ChromeExtensionID)
+	m, err := BuildManifest(hostPath, resolveChromeID(opts.ChromeExtensionID))
 	if err != nil {
 		return InstallResult{}, err
 	}
@@ -40,12 +50,7 @@ func Install(opts InstallOptions) (InstallResult, error) {
 		return InstallResult{}, err
 	}
 
-	keys := []string{
-		`Software\Google\Chrome\NativeMessagingHosts\` + HostName,
-		`Software\Microsoft\Edge\NativeMessagingHosts\` + HostName,
-		`Software\Mozilla\NativeMessagingHosts\` + HostName,
-	}
-	for _, keyPath := range keys {
+	for _, keyPath := range windowsUserHostKeys() {
 		key, _, err := registry.CreateKey(registry.CURRENT_USER, keyPath, registry.SET_VALUE)
 		if err != nil {
 			return InstallResult{}, fmt.Errorf("registry %s: %w", keyPath, err)
@@ -65,12 +70,7 @@ func Uninstall() (UninstallResult, error) {
 	wasInstalled := IsInstalled()
 	var removed []string
 
-	keys := []string{
-		`Software\Google\Chrome\NativeMessagingHosts\` + HostName,
-		`Software\Microsoft\Edge\NativeMessagingHosts\` + HostName,
-		`Software\Mozilla\NativeMessagingHosts\` + HostName,
-	}
-	for _, keyPath := range keys {
+	for _, keyPath := range windowsUserHostKeys() {
 		if err := registry.DeleteKey(registry.CURRENT_USER, keyPath); err == nil {
 			removed = append(removed, `HKCU\`+keyPath)
 		}
@@ -87,10 +87,7 @@ func Uninstall() (UninstallResult, error) {
 
 // IsInstalled reports whether a Chrome or Firefox host registry key exists.
 func IsInstalled() bool {
-	keys := []string{
-		`Software\Google\Chrome\NativeMessagingHosts\` + HostName,
-		`Software\Mozilla\NativeMessagingHosts\` + HostName,
-	}
+	keys := windowsUserHostKeys()
 	for _, keyPath := range keys {
 		key, err := registry.OpenKey(registry.CURRENT_USER, keyPath, registry.QUERY_VALUE)
 		if err == nil {

@@ -15,9 +15,9 @@ type UninstallResult struct {
 func FormatInstallMessage(r InstallResult, chromeExtensionID string) string {
 	var b strings.Builder
 	b.WriteString("Browser host installed for this user. ")
-	b.WriteString("Chrome, Edge, and Firefox can connect through the ODM extension. ")
-	if strings.TrimSpace(chromeExtensionID) == "" {
-		b.WriteString("Add your Chrome extension ID and save again so Chrome/Edge can connect. ")
+	b.WriteString("Chrome, Edge, Brave, and Firefox can connect through the ODM extension. ")
+	if strings.TrimSpace(chromeExtensionID) == "" || chromeExtensionID == ChromeExtensionID {
+		b.WriteString("The packaged extension is already allowed. Load it from the browser-extension folder. ")
 	}
 	b.WriteString(fmt.Sprintf("Host binary: %s", r.HostPath))
 	return strings.TrimSpace(b.String())

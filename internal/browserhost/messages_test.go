@@ -9,7 +9,7 @@ import (
 func TestFormatInstallMessageWarnsWithoutChromeID(t *testing.T) {
 	t.Parallel()
 	msg := FormatInstallMessage(InstallResult{HostPath: "/bin/odm-nmhost"}, "")
-	for _, part := range []string{"installed", "Chrome extension ID", "/bin/odm-nmhost"} {
+	for _, part := range []string{"installed", "packaged extension", "/bin/odm-nmhost"} {
 		if !strings.Contains(msg, part) {
 			t.Fatalf("missing %q in %q", part, msg)
 		}

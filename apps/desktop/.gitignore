@@ -1,6 +1,7 @@
 .task
 .wails
 bin
+build/staged
 frontend/dist
 frontend/bindings
 frontend/node_modules

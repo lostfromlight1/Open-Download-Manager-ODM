@@ -1,6 +1,9 @@
 import type { SettingsDTO } from "../downloads/downloadTypes";
 
-/** True when the first-run wizard should block the dashboard. */
+/** True when the first-run screen should still tell the user to load the extension. */
 export function needsSetupWizard(settings: SettingsDTO): boolean {
-  return !settings.downloadDirectory?.trim();
+  if (!settings.downloadDirectory?.trim()) {
+    return true;
+  }
+  return settings.setupNotice === "pending";
 }

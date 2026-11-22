@@ -5,10 +5,11 @@ import type { SettingsDTO } from "../downloads/downloadTypes";
 
 type Props = {
   onBack: () => void;
+  onOpenHelp: () => void;
   onSaved: (settings: SettingsDTO) => void;
 };
 
-export function SettingsPage({ onBack, onSaved }: Props) {
+export function SettingsPage({ onBack, onOpenHelp, onSaved }: Props) {
   const [form, setForm] = useState<SettingsDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
@@ -130,13 +131,22 @@ export function SettingsPage({ onBack, onSaved }: Props) {
             Destination, appearance, concurrency, and proxy
           </p>
         </div>
-        <button
-          type="button"
-          className="rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
-          onClick={onBack}
-        >
-          Back
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+            onClick={onOpenHelp}
+          >
+            Help
+          </button>
+          <button
+            type="button"
+            className="rounded-md border border-[var(--color-border)] px-3 py-2 text-sm"
+            onClick={onBack}
+          >
+            Back
+          </button>
+        </div>
       </header>
 
       {!form && !error ? (
@@ -289,7 +299,10 @@ export function SettingsPage({ onBack, onSaved }: Props) {
               Enable YouTube downloads
             </label>
             {form.mediaToolsMessage ? (
-              <p className="text-sm text-[var(--color-text-muted)]" role="status">
+              <p
+                className="text-sm text-[var(--color-text-muted)]"
+                role="status"
+              >
                 {form.mediaToolsMessage}
               </p>
             ) : null}
@@ -349,8 +362,8 @@ export function SettingsPage({ onBack, onSaved }: Props) {
             {form.browserIntegrationEnabled &&
             !form.chromeExtensionId.trim() ? (
               <p className="text-sm text-[var(--color-text-muted)]">
-                Firefox works without this ID. Chrome/Edge need the ID so the
-                host can allow your unpacked extension.
+                Leave this empty to allow the packaged extension. Paste a
+                different ID only if you loaded another unpacked copy.
               </p>
             ) : null}
             {form.browserHostRegistered ? (
@@ -364,9 +377,9 @@ export function SettingsPage({ onBack, onSaved }: Props) {
                 className="text-sm text-[var(--color-text-muted)]"
                 role="status"
               >
-                Status: host not registered yet. Build{" "}
+                Status: host not registered yet. The installer includes{" "}
                 <code className="font-mono text-xs">odm-nmhost</code> next to
-                the app (or on PATH), then Save to install it.
+                the app. Save again to register it for this account.
               </p>
             ) : (
               <p

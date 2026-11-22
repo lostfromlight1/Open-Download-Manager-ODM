@@ -14,4 +14,3 @@ func TestStringIncludesProductAndVersion(t *testing.T) {
 		t.Fatalf("String() = %q", got)
 	}
 }
-

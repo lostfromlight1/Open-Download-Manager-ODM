@@ -62,7 +62,7 @@ Platform support is a release commitment: do not advertise a platform as support
 - Phase 9: cookie/Referer handoff (memory-only), launch-at-login, richer tray.
 - Phase 10: optional YouTube downloads (managed yt-dlp/ffmpeg; format + playlist select).
 - 0.5.0 (v1.0 prep): Windows per-user NSIS installer, first-run setup wizard, GitHub Release + SHA256 (signing hooks only).
-- **1.0.0:** first stable release (unsigned Windows installer + SHA256; Authenticode signing deferred).
+- **1.0.0:** first stable release (unsigned Windows machine-wide installer + Linux deb/rpm + SHA256; Authenticode signing deferred). The package registers the native host; the user loads the browser extension.
 - Later: Authenticode signing, optional separate background service; Network Access / Tunneling track.
 
 Version numbers are planning labels, not promises.

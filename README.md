@@ -1,59 +1,44 @@
 # Open Download Manager (ODM)
 
-An open-source, cross-platform download manager for Windows, macOS, and Linux.
+ODM is an open-source download manager for Windows, macOS, and Linux. It queues HTTP and HTTPS downloads, pauses and resumes them, and can take files from the browser. YouTube downloads are optional.
 
-ODM is a desktop download manager with a reusable **Go** download engine, a **React/TypeScript** UI hosted by **Wails v3**, and planned browser integration.
+The installers are unsigned. The package installs the app and registers the browser host. Loading the browser extension is the step you do yourself.
 
-## Start here
+## Download 1.0.0
 
-1. Read [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md).
-2. Follow [`docs/TECH_STACK.md`](docs/TECH_STACK.md).
-3. Use [`docs/FEATURES.md`](docs/FEATURES.md) as the scope authority.
-4. Implement in the order defined by [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
-5. Follow [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/SECURITY.md`](docs/SECURITY.md), and [`docs/TESTING.md`](docs/TESTING.md).
-6. For coding-agent behavior, read [`AGENTS.md`](AGENTS.md) and `.cursor/rules/`.
+| System | File |
+|---|---|
+| Windows 10/11, 64-bit | [odm-windows-amd64-installer.exe](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-windows-amd64-installer.exe) |
+| Fedora and other rpm systems, 64-bit | [odm-linux-amd64.rpm](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-linux-amd64.rpm) |
+| Debian and Ubuntu, 64-bit | [odm-linux-amd64.deb](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-linux-amd64.deb) |
+| macOS 12 or newer, Apple Silicon | [odm-macos-arm64.dmg](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/odm-macos-arm64.dmg) |
 
-## Product principles
+Checksums are in [SHA256SUMS.txt](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases/latest/download/SHA256SUMS.txt) on the [releases page](https://github.com/lostfromlight1/Open-Download-Manager-ODM/releases).
 
-- Reliable downloads before feature breadth.
-- Cross-platform behavior must be tested, not assumed.
-- No hidden telemetry; be transparent about any diagnostics.
-- Keep the download engine independent of the desktop UI.
-- Prefer small, reviewable changes with tests.
-- Do not claim a speed improvement unless measured under repeatable conditions.
+Windows may show SmartScreen. Choose More info, then Run anyway, only for that installer. macOS may block the first open. Right-click the app and choose Open. Intel Macs are not in this release.
 
-## Current project status
+Install steps for each system are in [`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md). The same steps are in the app under Help.
 
-**1.0.0** — first stable release (Windows per-user NSIS installer, first-run setup, Phase 10 YouTube, browser intercept, tray, UI polish). Installers are **unsigned** in this cut; Authenticode signing and a separate background daemon remain follow-ups.
+This release does not include an AppImage. Flatpak browsers cannot start the host. A Firefox add-on loaded from the package is temporary and must be loaded again after Firefox quits. On macOS, YouTube downloads need `brew install ffmpeg`.
 
 License: MIT.
 
-## Install (end users)
+## Developers
 
-Windows: download the NSIS installer from [Releases](https://github.com/lostfromlight1/Open-Download-Manager/releases) and follow **[`docs/GETTING_STARTED.md`](docs/GETTING_STARTED.md)** (no Go/Node required).
+- Product scope: [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md), [`docs/FEATURES.md`](docs/FEATURES.md), [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md)
+- Design: [`docs/TECH_STACK.md`](docs/TECH_STACK.md), [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/SECURITY.md`](docs/SECURITY.md), [`docs/TESTING.md`](docs/TESTING.md)
+- New machine: [`SETUP.md`](SETUP.md)
+- Agent instructions: [`AGENTS.md`](AGENTS.md)
 
-## Branches
-
-- **`main`** — stable releases (current: **1.0.0**).
-- **`development`** — ongoing work after 1.0.
-
-## Setup and how to run (developers)
-
-For a **new development machine**, follow **[`SETUP.md`](SETUP.md)** (prerequisites, clone, verify, desktop/CLI commands, troubleshooting).
-
-Quick start once tools are installed:
+`main` is the stable release. `development` tracks the same commit until the next change.
 
 ```bash
-git clone https://github.com/lostfromlight1/Open-Download-Manager.git
-cd Open-Download-Manager
+git clone https://github.com/lostfromlight1/Open-Download-Manager-ODM.git
+cd Open-Download-Manager-ODM
 pnpm install
 pnpm build
 go test ./...
 cd apps/desktop && wails3 dev
 ```
 
-## Module path
-
-```text
-github.com/lostfromlight1/Open-Download-Manager
-```
+The Go module path is `github.com/lostfromlight1/Open-Download-Manager`. The GitHub repository name is `Open-Download-Manager-ODM`.

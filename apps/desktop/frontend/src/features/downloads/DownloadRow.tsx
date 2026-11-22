@@ -39,11 +39,7 @@ export function DownloadRow({
   onDetails,
 }: Props) {
   const busy = busyId === d.id || busyId === "bulk";
-  const pct = displayProgressPercent(
-    d.downloadedBytes,
-    d.totalBytes,
-    d.status,
-  );
+  const pct = displayProgressPercent(d.downloadedBytes, d.totalBytes, d.status);
   const exhausted = isProgressExhaustedWhileActive(
     d.downloadedBytes,
     d.totalBytes,
@@ -51,11 +47,7 @@ export function DownloadRow({
   );
   const eta = exhausted
     ? null
-    : etaSeconds(
-        d.downloadedBytes,
-        d.totalBytes,
-        d.bytesPerSecond ?? null,
-      );
+    : etaSeconds(d.downloadedBytes, d.totalBytes, d.bytesPerSecond ?? null);
   const sizeLabel = exhausted
     ? `${formatBytes(d.downloadedBytes)} · finishing…`
     : d.totalBytes != null

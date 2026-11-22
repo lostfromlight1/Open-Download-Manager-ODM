@@ -40,9 +40,6 @@ describe("format helpers", () => {
     expect(isProgressExhaustedWhileActive(1400, 1400, "downloading")).toBe(
       true,
     );
-    expect(isProgressExhaustedWhileActive(1400, 1400, "completed")).toBe(
-      false,
-    );
+    expect(isProgressExhaustedWhileActive(1400, 1400, "completed")).toBe(false);
   });
 });
-

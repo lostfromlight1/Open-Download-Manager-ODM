@@ -1,4 +1,10 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { App } from "./App";
 import { setDesktopApi, type DesktopApi } from "../services/desktopApi";
@@ -39,6 +45,9 @@ function mockApi(partial: Partial<DesktopApi> = {}): DesktopApi {
       mediaFfmpegPath: "",
       mediaToolsReady: false,
       mediaToolsMessage: "",
+      setupNotice: "done",
+      extensionChromeDir: "",
+      extensionFirefoxDir: "",
     }),
     getDownload: async () => {
       throw new Error("not used");
@@ -75,6 +84,9 @@ function mockApi(partial: Partial<DesktopApi> = {}): DesktopApi {
       mediaFfmpegPath: "",
       mediaToolsReady: false,
       mediaToolsMessage: "Re-downloading…",
+      setupNotice: "done",
+      extensionChromeDir: "",
+      extensionFirefoxDir: "",
     }),
     ...partial,
   };
@@ -101,6 +113,9 @@ describe("App", () => {
     expect(
       screen.queryByText("Download management is not available in this build."),
     ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Help" }));
+    expect(screen.getByRole("heading", { name: "Help" })).toBeInTheDocument();
+    expect(screen.getAllByRole("tab")).toHaveLength(3);
   });
 
   it("shows setup wizard when download directory is empty", async () => {
@@ -125,13 +140,16 @@ describe("App", () => {
           mediaFfmpegPath: "",
           mediaToolsReady: false,
           mediaToolsMessage: "",
+          setupNotice: "",
+          extensionChromeDir: "",
+          extensionFirefoxDir: "",
         }),
       }),
     );
     render(<App />);
     await waitFor(() => {
       expect(
-        screen.getByRole("heading", { name: "Set up Open Download Manager" }),
+        screen.getByRole("heading", { name: "Load the browser extension" }),
       ).toBeInTheDocument();
     });
   });

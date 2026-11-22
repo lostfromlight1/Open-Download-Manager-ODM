@@ -20,4 +20,3 @@ func String() string {
 	// + concatenates strings. For many pieces, prefer fmt.Sprintf.
 	return ProductName + " " + Version
 }
-

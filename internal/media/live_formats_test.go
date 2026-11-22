@@ -54,22 +54,22 @@ func TestLiveFormatMatrix(t *testing.T) {
 	t.Logf("formats: ba, 360=%s, 1080=%s", format360, format1080)
 
 	cases := []struct {
-		name     string
-		formatID string
+		name      string
+		formatID  string
 		wantAudio bool
 		wantVideo bool
-		minBytes int64
+		minBytes  int64
 	}{
 		{name: "audio-ba", formatID: "ba", wantAudio: true, wantVideo: false, minBytes: 100_000},
 		{name: "h360", formatID: format360, wantAudio: true, wantVideo: true, minBytes: 1_000_000},
 	}
 	if format1080 != "" {
 		cases = append(cases, struct {
-			name     string
-			formatID string
+			name      string
+			formatID  string
 			wantAudio bool
 			wantVideo bool
-			minBytes int64
+			minBytes  int64
 		}{name: "h1080", formatID: format1080, wantAudio: true, wantVideo: true, minBytes: 5_000_000})
 	}
 

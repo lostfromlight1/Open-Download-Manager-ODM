@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { DownloadsPage } from "../features/downloads/DownloadsPage";
+import { HelpPage } from "../features/help/HelpPage";
 import type { SettingsDTO } from "../features/downloads/downloadTypes";
 import { SettingsPage } from "../features/settings/SettingsPage";
 import { SetupWizard } from "../features/setup/SetupWizard";
@@ -7,7 +8,7 @@ import { needsSetupWizard } from "../features/setup/needsSetupWizard";
 import { applyTheme, watchSystemTheme } from "../lib/theme";
 import { getDesktopApi } from "../services/desktopApi";
 
-type Page = "downloads" | "settings";
+type Page = "downloads" | "settings" | "help";
 
 export function App() {
   const [page, setPage] = useState<Page>("downloads");
@@ -96,9 +97,14 @@ export function App() {
     return (
       <SettingsPage
         onBack={() => setPage("downloads")}
+        onOpenHelp={() => setPage("help")}
         onSaved={handleSettingsSaved}
       />
     );
+  }
+
+  if (page === "help") {
+    return <HelpPage onBack={() => setPage("downloads")} />;
   }
 
   return (
@@ -106,6 +112,7 @@ export function App() {
       defaultDir={settings.downloadDirectory || ""}
       notifyOnComplete={settings.notifyOnComplete}
       onOpenSettings={() => setPage("settings")}
+      onOpenHelp={() => setPage("help")}
     />
   );
 }

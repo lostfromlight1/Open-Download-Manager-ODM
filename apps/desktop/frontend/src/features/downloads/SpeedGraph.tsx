@@ -26,13 +26,16 @@ export function SpeedGraph({ samples, active }: Props) {
   }
 
   const pts = samples.length > 0 ? samples : [{ at: 0, netBps: 0, diskBps: 0 }];
-  const maxBps = Math.max(
-    1,
-    ...pts.map((s) => Math.max(s.netBps, s.diskBps)),
-  );
+  const maxBps = Math.max(1, ...pts.map((s) => Math.max(s.netBps, s.diskBps)));
   const last = pts[pts.length - 1]!;
-  const netPath = toPath(pts.map((s) => s.netBps), maxBps);
-  const diskPath = toPath(pts.map((s) => s.diskBps), maxBps);
+  const netPath = toPath(
+    pts.map((s) => s.netBps),
+    maxBps,
+  );
+  const diskPath = toPath(
+    pts.map((s) => s.diskBps),
+    maxBps,
+  );
 
   return (
     <div className="mt-3 rounded-md border border-[var(--color-border)] bg-[var(--color-surface-muted)]/40 px-3 py-2">

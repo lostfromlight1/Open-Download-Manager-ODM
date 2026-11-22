@@ -53,6 +53,9 @@ type SettingsDTO struct {
 	MediaFFmpegPath           string `json:"mediaFfmpegPath"`
 	MediaToolsReady           bool   `json:"mediaToolsReady"`   // status only
 	MediaToolsMessage         string `json:"mediaToolsMessage"` // status only
+	SetupNotice               string `json:"setupNotice"`       // pending until the extension step is dismissed
+	ExtensionChromeDir        string `json:"extensionChromeDir"`
+	ExtensionFirefoxDir       string `json:"extensionFirefoxDir"`
 }
 
 // MediaFormatDTO is one selectable yt-dlp format.
@@ -155,6 +158,7 @@ func settingsToDTO(s storage.Settings) SettingsDTO {
 		MediaEnabled:              s.MediaEnabled,
 		MediaYtDlpPath:            s.MediaYtDlpPath,
 		MediaFFmpegPath:           s.MediaFFmpegPath,
+		SetupNotice:               s.SetupNotice,
 	}
 }
 
@@ -173,6 +177,7 @@ func settingsFromDTO(d SettingsDTO) (storage.Settings, error) {
 	cfg.MediaEnabled = d.MediaEnabled
 	cfg.MediaYtDlpPath = strings.TrimSpace(d.MediaYtDlpPath)
 	cfg.MediaFFmpegPath = strings.TrimSpace(d.MediaFFmpegPath)
+	cfg.SetupNotice = strings.TrimSpace(d.SetupNotice)
 
 	switch netx.ProxyMode(d.ProxyMode) {
 	case netx.ProxySystem, "":

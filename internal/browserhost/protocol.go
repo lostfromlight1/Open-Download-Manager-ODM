@@ -15,6 +15,12 @@ const (
 	// FirefoxExtensionID is the fixed gecko id for the ODM WebExtension.
 	FirefoxExtensionID = "odm@opendownloadmanager.app"
 
+	// ChromeExtensionID is derived from the public key in
+	// apps/browser-extension/manifest.json. Unpacked Chrome/Edge loads keep
+	// this id, so installers can allow the extension without asking the user
+	// to paste it. The matching private key is not stored in the repo.
+	ChromeExtensionID = "bhpbmomemajaigcddcnpknkchcmpgkco"
+
 	ProtocolVersion = 1
 	MaxMessageBytes = 256 * 1024
 )

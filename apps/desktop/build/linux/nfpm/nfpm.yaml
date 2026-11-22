@@ -10,13 +10,19 @@ priority: "optional"
 maintainer: "Open Download Manager contributors <noreply@opendownloadmanager.app>"
 description: "Open-source download manager desktop shell"
 vendor: "Open Download Manager contributors"
-homepage: "https://github.com/lostfromlight1/Open-Download-Manager"
+homepage: "https://github.com/lostfromlight1/Open-Download-Manager-ODM"
 license: "MIT"
 release: "1"
 
 contents:
   - src: "./bin/odm"
-    dst: "/usr/local/bin/odm"
+    dst: "/usr/bin/odm"
+  - src: "./bin/odm-nmhost"
+    dst: "/usr/bin/odm-nmhost"
+  - src: "./build/staged/browser-extension"
+    dst: "/usr/share/odm/browser-extension"
+  - src: "./build/staged/browser-extension-firefox"
+    dst: "/usr/share/odm/browser-extension-firefox"
   - src: "./build/appicon.png"
     dst: "/usr/share/icons/hicolor/128x128/apps/odm.png"
   - src: "./build/linux/odm.desktop"
@@ -40,4 +46,5 @@ overrides:
 
 scripts:
   postinstall: "./build/linux/nfpm/scripts/postinstall.sh"
+  preremove: "./build/linux/nfpm/scripts/preremove.sh"
 

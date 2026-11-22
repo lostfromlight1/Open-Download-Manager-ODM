@@ -30,6 +30,9 @@ const emptySettings: SettingsDTO = {
   mediaFfmpegPath: "",
   mediaToolsReady: false,
   mediaToolsMessage: "",
+  setupNotice: "",
+  extensionChromeDir: "",
+  extensionFirefoxDir: "",
 };
 
 function mockApi(partial: Partial<DesktopApi> = {}): DesktopApi {
@@ -71,13 +74,24 @@ function mockApi(partial: Partial<DesktopApi> = {}): DesktopApi {
 }
 
 describe("needsSetupWizard", () => {
-  it("is true when download directory is empty", () => {
+  it("is true until the folder exists and the extension notice is dismissed", () => {
     expect(needsSetupWizard(emptySettings)).toBe(true);
     expect(
       needsSetupWizard({ ...emptySettings, downloadDirectory: "  " }),
     ).toBe(true);
     expect(
-      needsSetupWizard({ ...emptySettings, downloadDirectory: "D:/Download" }),
+      needsSetupWizard({
+        ...emptySettings,
+        downloadDirectory: "D:/Download",
+        setupNotice: "pending",
+      }),
+    ).toBe(true);
+    expect(
+      needsSetupWizard({
+        ...emptySettings,
+        downloadDirectory: "D:/Download",
+        setupNotice: "done",
+      }),
     ).toBe(false);
   });
 });
@@ -102,34 +116,38 @@ describe("SetupWizard", () => {
     );
   });
 
-  it("completes after folder + skips", async () => {
+  it("enables the host and dismisses the notice", async () => {
     let finished: SettingsDTO | null = null;
-    setDesktopApi(mockApi());
+    setDesktopApi(
+      mockApi({
+        updateSettings: async (s) => s,
+      }),
+    );
     render(
       <SetupWizard
-        initial={emptySettings}
+        initial={{
+          ...emptySettings,
+          downloadDirectory: "D:\\Download",
+          extensionChromeDir: "C:\\Program Files\\ODM\\browser-extension",
+          setupNotice: "pending",
+        }}
         onComplete={(s) => {
           finished = s;
         }}
       />,
     );
-    fireEvent.change(screen.getByPlaceholderText("D:\\Download"), {
-      target: { value: "D:\\Download" },
-    });
+    expect(
+      screen.getByRole("heading", { name: "Load the browser extension" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("C:\\Program Files\\ODM\\browser-extension", {
+        exact: true,
+      }),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "Browser integration" }),
-      ).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Skip for now" }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole("heading", { name: "YouTube downloads" }),
-      ).toBeInTheDocument();
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Skip and finish" }));
-    await waitFor(() => {
+      expect(finished?.browserIntegrationEnabled).toBe(true);
+      expect(finished?.setupNotice).toBe("done");
       expect(finished?.downloadDirectory).toBe("D:\\Download");
     });
   });

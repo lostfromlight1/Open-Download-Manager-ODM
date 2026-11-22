@@ -36,11 +36,18 @@ func BuildManifest(hostPath, chromeExtensionID string) (Manifest, error) {
 		Type:              "stdio",
 		AllowedExtensions: []string{FirefoxExtensionID},
 	}
-	id := strings.TrimSpace(chromeExtensionID)
-	if id != "" {
-		m.AllowedOrigins = []string{"chrome-extension://" + id + "/"}
-	}
+	m.AllowedOrigins = []string{"chrome-extension://" + resolveChromeID(chromeExtensionID) + "/"}
 	return m, nil
+}
+
+// resolveChromeID uses the packaged extension id when the caller did not
+// supply one, so Chrome and Edge can connect without a manual paste.
+func resolveChromeID(chromeExtensionID string) string {
+	id := strings.TrimSpace(chromeExtensionID)
+	if id == "" {
+		return ChromeExtensionID
+	}
+	return id
 }
 
 // WriteManifestFile writes JSON to path with mode 0644.

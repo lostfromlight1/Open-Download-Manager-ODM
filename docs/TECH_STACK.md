@@ -16,7 +16,7 @@
 | Frontend state | React state first; Zustand later if needed | Avoid unnecessary libraries |
 | Browser integration | Chrome/Firefox WebExtensions | Later milestone |
 | Native bridge | Native Messaging | Later milestone |
-| Go module | `github.com/lostfromlight1/Open-Download-Manager` | Matches the GitHub repository |
+| Go module | `github.com/lostfromlight1/Open-Download-Manager` | Module path. The GitHub repository is `Open-Download-Manager-ODM`. |
 | CLI | `odm` | Product CLI name |
 | CI | GitHub Actions | Format, vet, test, frontend checks |
 | Logging | slog (stdlib) unless needs grow | Structured diagnostics |

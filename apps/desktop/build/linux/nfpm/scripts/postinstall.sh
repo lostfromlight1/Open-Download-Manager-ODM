@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Register the native messaging host for every account on this machine.
+if [ -x /usr/bin/odm-nmhost ]; then
+  /usr/bin/odm-nmhost --install-system
+fi
+
 # Update desktop database for .desktop file changes
 # This makes the application appear in application menus and registers its capabilities.
 if command -v update-desktop-database >/dev/null 2>&1; then

@@ -21,6 +21,8 @@ func hostManifestTargets(home string) []string {
 		return []string{
 			filepath.Join(home, ".config/google-chrome/NativeMessagingHosts", HostName+".json"),
 			filepath.Join(home, ".config/chromium/NativeMessagingHosts", HostName+".json"),
+			filepath.Join(home, ".config/microsoft-edge/NativeMessagingHosts", HostName+".json"),
+			filepath.Join(home, ".config/BraveSoftware/Brave-Browser/NativeMessagingHosts", HostName+".json"),
 			filepath.Join(home, ".mozilla/native-messaging-hosts", HostName+".json"),
 		}
 	}
@@ -36,7 +38,7 @@ func Install(opts InstallOptions) (InstallResult, error) {
 			return InstallResult{}, err
 		}
 	}
-	m, err := BuildManifest(hostPath, opts.ChromeExtensionID)
+	m, err := BuildManifest(hostPath, resolveChromeID(opts.ChromeExtensionID))
 	if err != nil {
 		return InstallResult{}, err
 	}

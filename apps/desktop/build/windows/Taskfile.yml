@@ -52,6 +52,7 @@ tasks:
         vars:
           ARCH: '{{.ARCH}}'
       - '{{if eq .OBFUSCATED "true"}}garble {{.GARBLE_ARGS}} build{{else}}go build{{end}} {{.BUILD_FLAGS}} -o "{{.BIN_DIR}}/{{.APP_NAME}}.exe"'
+      - CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o "{{.BIN_DIR}}/odm-nmhost.exe" ../../cmd/odm-nmhost
       - cmd: powershell Remove-item *.syso
         platforms: [windows]
       - cmd: rm -f *.syso
@@ -99,10 +100,10 @@ tasks:
     cmds:
       - task: '{{if eq (.FORMAT | default "nsis") "msix"}}create:msix:package{{else}}create:nsis:installer{{end}}'
         vars:
-          INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "user"}}'
+          INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "machine"}}'
     vars:
       FORMAT: '{{.FORMAT | default "nsis"}}'
-      INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "user"}}'
+      INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "machine"}}'
 
   generate:syso:
     summary: Generates Windows `.syso` file
@@ -122,17 +123,19 @@ tasks:
         msg: "INSTALL_SCOPE must be 'user' or 'machine', got '{{.INSTALL_SCOPE}}'"
     cmds:
       # Create the Microsoft WebView2 bootstrapper if it doesn't exist
+      - sh "{{.ROOT_DIR}}/build/stage-extension.sh"
       - wails3 generate webview2bootstrapper -dir "{{.ROOT_DIR}}/build/windows/nsis"
       - |
         {{if eq OS "windows"}}
-        makensis {{if eq .INSTALL_SCOPE "user"}}-DWAILS_INSTALL_SCOPE=user -DREQUEST_EXECUTION_LEVEL=user {{end}}-DARG_WAILS_{{.ARG_FLAG}}_BINARY="{{.ROOT_DIR}}\{{.BIN_DIR}}\{{.APP_NAME}}.exe" project.nsi
+        makensis -DWAILS_INSTALL_SCOPE={{.INSTALL_SCOPE}} -DREQUEST_EXECUTION_LEVEL={{.EXEC_LEVEL}} -DODM_NMHOST="{{.ROOT_DIR}}\{{.BIN_DIR}}\odm-nmhost.exe" -DODM_EXT_CHROME="{{.ROOT_DIR}}\build\staged\browser-extension" -DODM_EXT_FIREFOX="{{.ROOT_DIR}}\build\staged\browser-extension-firefox" -DARG_WAILS_{{.ARG_FLAG}}_BINARY="{{.ROOT_DIR}}\{{.BIN_DIR}}\{{.APP_NAME}}.exe" project.nsi
         {{else}}
-        makensis {{if eq .INSTALL_SCOPE "user"}}-DWAILS_INSTALL_SCOPE=user -DREQUEST_EXECUTION_LEVEL=user {{end}}-DARG_WAILS_{{.ARG_FLAG}}_BINARY="{{.ROOT_DIR}}/{{.BIN_DIR}}/{{.APP_NAME}}.exe" project.nsi
+        makensis -DWAILS_INSTALL_SCOPE={{.INSTALL_SCOPE}} -DREQUEST_EXECUTION_LEVEL={{.EXEC_LEVEL}} -DODM_NMHOST="{{.ROOT_DIR}}/{{.BIN_DIR}}/odm-nmhost.exe" -DODM_EXT_CHROME="{{.ROOT_DIR}}/build/staged/browser-extension" -DODM_EXT_FIREFOX="{{.ROOT_DIR}}/build/staged/browser-extension-firefox" -DARG_WAILS_{{.ARG_FLAG}}_BINARY="{{.ROOT_DIR}}/{{.BIN_DIR}}/{{.APP_NAME}}.exe" project.nsi
         {{end}}
     vars:
       ARCH: '{{.ARCH | default ARCH}}'
       ARG_FLAG: '{{if eq .ARCH "amd64"}}AMD64{{else}}ARM64{{end}}'
-      INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "user"}}'
+      INSTALL_SCOPE: '{{.INSTALL_SCOPE | default "machine"}}'
+      EXEC_LEVEL: '{{if eq .INSTALL_SCOPE "user"}}user{{else}}admin{{end}}'
 
   create:msix:package:
     summary: Creates an MSIX package

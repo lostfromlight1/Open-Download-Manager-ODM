@@ -105,8 +105,8 @@ Distros differ; follow the doctor output.
 ## 3. Clone and install
 
 ```bash
-git clone https://github.com/lostfromlight1/Open-Download-Manager.git
-cd Open-Download-Manager
+git clone https://github.com/lostfromlight1/Open-Download-Manager-ODM.git
+cd Open-Download-Manager-ODM
 
 pnpm install
 pnpm build
@@ -150,8 +150,10 @@ wails3 dev
 Or from the repo root:
 
 ```bash
-pnpm --dir apps/desktop exec wails3 dev -config ./build/config.yml
+pnpm dev
 ```
+
+`apps/desktop` is the Wails project directory, not a pnpm package, so the script changes into that directory and runs `wails3` directly.
 
 This starts the Vite frontend and the native Wails window with hot reload.
 
@@ -225,9 +227,9 @@ From `apps/desktop` with `CI=true`:
 
 | OS | Command | Artifact |
 |---|---|---|
-| Windows | `wails3 task windows:package` (default `INSTALL_SCOPE=user`, no UAC) | `bin/odm-amd64-installer.exe` (NSIS) |
+| Windows | `wails3 task windows:package` (default `INSTALL_SCOPE=machine`, all users) | `bin/odm-amd64-installer.exe` (NSIS) |
 | macOS | `wails3 task darwin:package` | `bin/odm.app` |
-| Linux | `wails3 task linux:create:deb` | `bin/odm_*.deb` |
+| Linux | `wails3 task linux:create:deb` or `wails3 task linux:create:rpm` | `bin/odm_*.deb` or `bin/odm-*.rpm` |
 
 Windows packaging requires `makensis` on `PATH`. The NSIS task downloads a WebView2 bootstrapper into `build/windows/nsis/` (gitignored).
 
@@ -236,6 +238,8 @@ CI uploads these artifacts from the `desktop-package` job (7-day retention). Loc
 Shared SQLite/settings live under the OS config dir `/odm` (Windows: `%AppData%\odm`). Uninstalling the Windows NSIS package does **not** delete that data directory.
 
 ### 5.6 Browser extension (Phase 6)
+
+End-user installers copy `odm-nmhost`, both extension folders, and register the host for every account. The steps below are for a development build.
 
 1. Build the native host next to the desktop app (or put it on `PATH`):
 

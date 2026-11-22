@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/lostfromlight1/Open-Download-Manager/internal/appdir"
+	"github.com/lostfromlight1/Open-Download-Manager/internal/browserhost"
 	"github.com/lostfromlight1/Open-Download-Manager/internal/manager"
 	"github.com/lostfromlight1/Open-Download-Manager/internal/storage"
 	"github.com/wailsapp/wails/v3/pkg/application"
@@ -69,6 +70,20 @@ func main() {
 		} else {
 			cfg, cfgErr := store.GetSettings(context.Background())
 			if cfgErr == nil {
+				if dir, dirErr := defaultDownloadDir(); dirErr != nil {
+					log.Printf("default download folder: %v", dirErr)
+				} else if next, first := applyFirstRun(cfg, dir); first {
+					if err := store.SaveSettings(context.Background(), next); err != nil {
+						log.Printf("save first-run settings: %v", err)
+					} else {
+						cfg = next
+						if _, err := browserhost.Install(browserhost.InstallOptions{
+							ChromeExtensionID: cfg.ChromeExtensionID,
+						}); err != nil {
+							log.Printf("register browser host: %v", err)
+						}
+					}
+				}
 				closeToTray = cfg.CloseToTray
 				launchAtLogin = cfg.LaunchAtLogin
 			}
