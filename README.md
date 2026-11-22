@@ -1,3 +1,5 @@
+# Open Download Manager
+
 ODM is an open-source download manager for Windows, macOS, and Linux. It queues HTTP and HTTPS downloads, pauses and resumes them, and can take files from the browser. YouTube downloads are optional.
 
 The installers are unsigned. The package installs the app and registers the browser host. Loading the browser extension is the step you do yourself.
