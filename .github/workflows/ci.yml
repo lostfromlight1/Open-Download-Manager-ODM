@@ -95,6 +95,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate frontend bindings
+        run: pnpm --filter @open-download-manager/desktop-frontend generate:bindings
+
       - name: Format
         run: pnpm format
 
